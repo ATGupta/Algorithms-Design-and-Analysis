@@ -7,12 +7,14 @@ public class NamedList <E> {
 	private NamedObject<E> head, tail;
 	private Integer length;
 	private String lengthString;
+	private boolean insertedName;
 	
 	public NamedList() {
 		head=null;
 		tail=null;
 		length=0;
 		lengthString="0";
+		insertedName=false;
 	}
 	
 	public NamedList(E[] ob) {
@@ -20,6 +22,7 @@ public class NamedList <E> {
 		tail=null;
 		length=0;
 		lengthString="0";
+		insertedName=false;
 		for(Integer i=0;i<ob.length;i++) {
 			add(ob[i]);
 		}
@@ -36,6 +39,8 @@ public class NamedList <E> {
 		}
 		++length;
 		lengthString = new KaratsubaString().add(lengthString, "1");
+		
+		if(name!=null)insertedName=true;
 	}
 	
 	public void add(E val) {
@@ -51,6 +56,17 @@ public class NamedList <E> {
 		lengthString = new KaratsubaString().add(lengthString, "1");
 	}
 	
+	public Boolean containsValue(E val) {
+		Integer i; NamedObject<E> ob = head;
+		
+		while(ob!=null) {
+			if(ob.val == val) return true;
+			ob = ob.next;
+		}
+		
+		return false;
+	}
+	
 	public NamedList<E> copy(NamedList<E> ob){
 		NamedList<E> copied = new NamedList<E>();
 		for(Integer i=0;i<ob.size();i++) {
@@ -58,6 +74,34 @@ public class NamedList <E> {
 		}
 		
 		return copied;
+	}
+	
+	public E dequeue() {
+		E returnValue=null;
+		
+		if(length>0) {
+			returnValue = head.val;
+			head = head.next;
+			-- length;
+			lengthString = new KaratsubaString().add(lengthString, "-1");
+			
+			return returnValue;
+		}
+		
+		try {
+			throw new NamedListException("StackEmptyException");
+		} catch(NamedListException e) {
+			e.printStackTrace();
+		}
+		return returnValue;
+	}
+	
+	public void enqueue(E val) {
+		add(val);
+	}
+	
+	public void enqueue(String name, E val) {
+		add(name, val);
 	}
 	
 	public E getByIndex(Integer index) {
@@ -283,6 +327,8 @@ public class NamedList <E> {
 	}
 	
 	public void replaceByIndex(String name, E val, Integer index) {
+		if(name!=null)insertedName=true;
+		
 		NamedObject<E> ob=new NamedObject<E>(val, name);
 		if(index==0) {
 			head = head.next;
@@ -323,6 +369,8 @@ public class NamedList <E> {
 	}
 	
 	public String toString() {
+		if(insertedName==false)return toString(null);
+		
 		String st="[";
 		
 		NamedObject<E> ob=head;
@@ -355,6 +403,18 @@ public class NamedList <E> {
 		} st = st + "]";
 		
 		return st;
+	}
+	
+	public void reverseItself() {
+		NamedObject<E> prev=null;
+		NamedObject<E> now=head;
+		while(now!=null) {
+			NamedObject<E> next = now.next;
+			now.next=prev;
+			prev = now;
+			now = next;
+		}
+		head = prev;
 	}
 	
 	public Integer size() {
